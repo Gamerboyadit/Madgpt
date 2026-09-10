@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>A.P AI V3</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">✦ A.P AI <span>V3</span></div>
+      <button id="newChat">＋ New chat</button>
+      <div class="side-note">Local AI • No API key</div>
+      <div class="history" id="history"></div>
+      <div class="side-bottom">
+        <button id="themeBtn">🌙 Theme</button>
+        <button id="clearBtn">🗑 Clear chats</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu" id="menuBtn">☰</button>
+        <div class="model-title">A.P AI <small>Local</small></div>
+        <button class="status" id="status">Offline-ready</button>
+      </header>
+
+      <section class="chat" id="chat">
+        <div class="welcome" id="welcome">
+          <div class="logo">✦</div>
+          <h1>How can I help?</h1>
+          <p>Your private local AI assistant. No OpenAI API key required.</p>
+          <div class="cards">
+            <button data-prompt="Explain photosynthesis simply">📚 Learn something</button>
+            <button data-prompt="Help me write a school paragraph">✍️ Write something</button>
+            <button data-prompt="Give me some fun coding ideas">💻 Coding ideas</button>
+            <button data-prompt="Tell me a short interesting fact">💡 Interesting fact</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="typing" id="typing">A.P AI is thinking…</div>
+
+      <form class="composer" id="composer">
+        <button type="button" class="icon" id="attachBtn" title="Attach text file">📎</button>
+        <input type="file" id="fileInput" accept=".txt,.md,.json,.csv" hidden>
+        <textarea id="input" rows="1" placeholder="Message A.P AI…" autocomplete="off"></textarea>
+        <button type="button" class="icon" id="micBtn" title="Voice input">🎤</button>
+        <button class="send" type="submit">➤</button>
+      </form>
+      <div class="disclaimer">A.P AI V3 uses a local browser AI model. Responses may be less capable than cloud AI.</div>
+    </main>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
