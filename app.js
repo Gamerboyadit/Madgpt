@@ -50,38 +50,47 @@ function renderHistory(){
 
 function add(role,content){messages.push({role,content});save();render();}
 
+// Reports model download progress in the status pill while loading.
+function progressHandler(data){
+  if(data.status==="progress" && typeof data.progress==="number"){
+    $("#status").textContent = `Loading… ${Math.round(data.progress)}%`;
+  }
+}
+
 async function getModel(){
   if(generator) return generator;
 
-  typing.textContent="Preparing the local AI model…";
   $("#status").textContent="Loading AI…";
 
-  // WASM + q8 is intentionally preferred for phones because it doesn't require WebGPU.
-  try{
-    generator=await pipeline("text-generation", MODEL, {
-      device:"wasm",
-      dtype:"q8"
-    });
-    generatorDevice="WASM";
-    $("#status").textContent="Local AI • WASM";
-    return generator;
-  }catch(wasmError){
-    console.warn("WASM load failed:",wasmError);
-  }
-
-  // Fallback for browsers with working WebGPU.
+  // WebGPU is tried first: it's substantially faster than WASM whenever
+  // the browser/device supports it. WASM (CPU-only) is the fallback.
   try{
     generator=await pipeline("text-generation", MODEL, {
       device:"webgpu",
-      dtype:"q4f16"
+      dtype:"q4f16",
+      progress_callback:progressHandler
     });
     generatorDevice="WebGPU";
     $("#status").textContent="Local AI • WebGPU";
     return generator;
   }catch(gpuError){
-    console.error("WebGPU load failed:",gpuError);
+    console.warn("WebGPU load failed, falling back to WASM:",gpuError);
+  }
+
+  try{
+    generator=await pipeline("text-generation", MODEL, {
+      device:"wasm",
+      dtype:"q8",
+      progress_callback:progressHandler
+    });
+    generatorDevice="WASM";
+    $("#status").textContent="Local AI • WASM";
+    return generator;
+  }catch(wasmError){
+    console.error("WASM load failed:",wasmError);
     generator=null;
-    throw gpuError;
+    $("#status").textContent="AI unavailable";
+    throw wasmError;
   }
 }
 
@@ -116,7 +125,7 @@ async function answer(prompt){
     const conversation=[{role:"system",content:system},...recent];
 
     const out=await model(conversation,{
-      max_new_tokens:180,
+      max_new_tokens:160,
       temperature:0.7,
       do_sample:true
     });
@@ -200,3 +209,7 @@ $("#micBtn").onclick=()=>{
 };
 
 render();
+
+// Warm up the model in the background as soon as the page opens, so the
+// first real message doesn't have to wait for the full download + load.
+getModel().catch(()=>{});
